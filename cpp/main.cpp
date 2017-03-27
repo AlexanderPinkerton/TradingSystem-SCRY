@@ -22,9 +22,11 @@ int main(int argc, char **argv)
 
     //Parse json test.
     std::string pair = "BTC_XMR";
-    int start = std::time(0)-100000;
+    int start = std::time(0)-50000;
     int end = std::time(0);
-    int seconds = 1800;
+    int seconds = 900;
+    //300, 900, 1800, 7200, 14400, and 86400
+    //5min  15  30  2hr 4hr 1day
 
 //    QPushButton hello( "Hello world!", 0 );
 //    hello.resize( 100, 30 );
@@ -67,7 +69,7 @@ int main(int argc, char **argv)
 
 
             acmeSeries->append(candlestickSet);
-            categories << QDateTime::fromMSecsSinceEpoch(candlestickSet->timestamp()).toString("Hmsz");
+            categories << QDateTime::fromMSecsSinceEpoch(candlestickSet->timestamp()).toString("M/d hh:mm:ss");
         }
 
     }
@@ -84,16 +86,17 @@ int main(int argc, char **argv)
 
     QBarCategoryAxis *axisX = qobject_cast<QBarCategoryAxis *>(chart->axes(Qt::Horizontal).at(0));
     axisX->setCategories(categories);
-//
-//    QValueAxis *axisY = qobject_cast<QValueAxis *>(chart->axes(Qt::Vertical).at(0));
-//    axisY->setMax(axisY->max() * 1.01);
-//    axisY->setMin(axisY->min() * 0.99);
+
+    QValueAxis *axisY = qobject_cast<QValueAxis *>(chart->axes(Qt::Vertical).at(0));
+    axisY->setMax(axisY->max() * 1.01);
+    axisY->setMin(axisY->min() * 0.99);
 
     chart->legend()->setVisible(true);
     chart->legend()->setAlignment(Qt::AlignBottom);
 
     QChartView *chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
+    chartView->setRubberBand(QChartView::HorizontalRubberBand);
 
     QMainWindow window;
     window.setCentralWidget(chartView);

@@ -10,45 +10,28 @@ Request::Request(const std::string & baseUri, std::string & query)
 //It should also update the response if success
 bool Request::sendRequest()
 {
-    bool success;
-    http_client client(U(Request::baseUri));
+    QObject::connect(&mgr, SIGNAL(finished(QNetworkReply*)), &eventLoop, SLOT(quit()));
+    // the HTTP request
+    QUrl url(QString::fromStdString(Request::baseUri));
+    url.setQuery(QString::fromStdString(query));
 
-    std::string query = "";
+    QNetworkRequest req( url );
+    QNetworkReply *reply = mgr.get(req);
+    eventLoop.exec(); // blocks stack until "finished()" has been called
 
-   client
-      // send the HTTP GET request asynchronous
-     .request(methods::GET, Request::query)
-      // continue when the response is available
-     .then([&](http_response response) -> pplx::task<json::value>
-      {
-         // if the status is OK extract the body of the response into a JSON value
-         // works only when the content type is application\json
-         if(response.status_code() == status_codes::OK)
-         {
-            return response.extract_json();
-         }
+    if (reply->error() == QNetworkReply::NoError) {
+        //success
+        QByteArray bytes = reply->readAll();
+        QString result(bytes);
+        Request::response = result.toUtf8().constData();
+        delete reply;
+        return true;
+    }
+    else {
+        //failure
+        qDebug() << "Failure" <<reply->errorString();
+        delete reply;
+        return false;
+    }
 
-         // return an empty JSON value
-         return pplx::task_from_result(json::value());
-      })
-      // continue when the JSON value is available
-      .then([&](pplx::task<json::value> previousTask)
-      {
-         // get the JSON value from the task and display content from it
-         try
-         {
-            json::value const & v = previousTask.get();
-            Request::response = v.serialize();
-            success = true;
-         }
-         catch (http_exception const & e)
-         {
-             success = false;
-             std::cout << e.what() << std::endl;
-         }
-      })
-      .wait();
-
-
-  return success;
 }

@@ -4,8 +4,8 @@
 #include <string>
 #include <sstream>
 
-#include <cpprest/http_client.h>
-#include <cpprest/uri_builder.h>
+
+#include <QUrlQuery>
 
 #include "Request.hpp"
 
