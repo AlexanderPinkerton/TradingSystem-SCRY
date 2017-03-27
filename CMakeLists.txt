@@ -20,7 +20,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 
 # Find the Qt Modules
-find_package(Qt5 COMPONENTS Core Network Gui Widgets REQUIRED )
+find_package(Qt5 COMPONENTS Core Network Gui Widgets Charts REQUIRED )
 # Instruct CMake to run moc automatically when needed. [For Qt]
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
@@ -45,11 +45,12 @@ add_executable(TradingSystem ${SOURCE_FILES})
 
 # Specify which QT modules to add to the executable.
 target_link_libraries(TradingSystem
-  Qt5::Core
-  Qt5::Network
-  Qt5::Gui
-  Qt5::Widgets
-  PoloniexAPI)
+        Qt5::Core
+        Qt5::Network
+        Qt5::Gui
+        Qt5::Widgets
+        Qt5::Charts
+        PoloniexAPI)
 
 add_dependencies(TradingSystem PoloniexAPI)
 

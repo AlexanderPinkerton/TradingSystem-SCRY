@@ -1,15 +1,16 @@
 #include <QApplication>
 #include <QPushButton>
-#include <QString>
 
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
-#include <QJsonValue>
+
+#include <QtCharts>
 
 #include <QDebug>
 
 #include <iostream>
+
 
 #include "PoloniexClient.hpp"
 
@@ -25,10 +26,22 @@ int main(int argc, char **argv)
     int end = std::time(0);
     int seconds = 1800;
 
-    QPushButton hello( "Hello world!", 0 );
-    hello.resize( 100, 30 );
-    a.setActiveWindow( &hello );
-    hello.show();
+//    QPushButton hello( "Hello world!", 0 );
+//    hello.resize( 100, 30 );
+//    a.setActiveWindow( &hello );
+//    hello.show();
+
+
+    QCandlestickSeries *acmeSeries = new QCandlestickSeries();
+    acmeSeries->setName("Acme Ltd");
+    acmeSeries->setIncreasingColor(QColor(125,249,255));
+    acmeSeries->setDecreasingColor(QColor(Qt::darkMagenta));
+
+
+
+    QStringList categories;
+
+
 
     std::string result =  client.public_ChartData(pair, seconds, start, end);
 
@@ -37,14 +50,55 @@ int main(int argc, char **argv)
         QJsonDocument doc = QJsonDocument::fromJson(qresult.toUtf8());
         QJsonArray candles = doc.array();
 
-        for(unsigned int i=0;i<candles.size();i++){
+        for(int i=0;i<candles.size();i++){
             QJsonObject dateobj = candles[i].toObject();
-            qDebug() << dateobj["high"];
-        }
 
+            const qreal timestamp = dateobj["date"].toDouble();
+            const qreal open = dateobj["open"].toDouble();
+            const qreal high = dateobj["high"].toDouble();
+            const qreal low = dateobj["low"].toDouble();
+            const qreal close = dateobj["close"].toDouble();
+
+            QCandlestickSet *candlestickSet = new QCandlestickSet(timestamp);
+            candlestickSet->setOpen(open);
+            candlestickSet->setHigh(high);
+            candlestickSet->setLow(low);
+            candlestickSet->setClose(close);
+
+
+            acmeSeries->append(candlestickSet);
+            categories << QDateTime::fromMSecsSinceEpoch(candlestickSet->timestamp()).toString("Hmsz");
+        }
 
     }
 
+
+    QChart *chart = new QChart();
+    chart->setTheme(QChart::ChartThemeDark);
+    chart->addSeries(acmeSeries);
+
+    chart->setTitle(QString::fromStdString(pair));
+    chart->setAnimationOptions(QChart::SeriesAnimations);
+
+    chart->createDefaultAxes();
+
+    QBarCategoryAxis *axisX = qobject_cast<QBarCategoryAxis *>(chart->axes(Qt::Horizontal).at(0));
+    axisX->setCategories(categories);
+//
+//    QValueAxis *axisY = qobject_cast<QValueAxis *>(chart->axes(Qt::Vertical).at(0));
+//    axisY->setMax(axisY->max() * 1.01);
+//    axisY->setMin(axisY->min() * 0.99);
+
+    chart->legend()->setVisible(true);
+    chart->legend()->setAlignment(Qt::AlignBottom);
+
+    QChartView *chartView = new QChartView(chart);
+    chartView->setRenderHint(QPainter::Antialiasing);
+
+    QMainWindow window;
+    window.setCentralWidget(chartView);
+    window.resize(800, 600);
+    window.show();
 
 
     return a.exec();
