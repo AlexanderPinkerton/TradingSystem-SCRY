@@ -2,13 +2,15 @@
 #project(PoloniexAPI)
 #set(CMAKE_CXX_STANDARD 11)
 
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+
 
 #----------------Prepare and Load Dependencies--------------------------------
 #Add the QT Cmake path to the current cmake path.
 #If it cannot find QT, make sure it is installed and then set the QtCmakePath
 
 #Add the <Qt5Dir>/lib/cmake/Qt5 Enivronment Variable to the prefix path
-SET(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "~/Qt5.8.0/5.8/gcc_64/lib/cmake/Qt5")
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} $ENV{QtCmakePath})
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 

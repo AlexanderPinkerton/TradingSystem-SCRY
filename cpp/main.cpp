@@ -10,6 +10,7 @@
 #include <QDebug>
 
 #include <iostream>
+#include <ctime>
 
 
 #include "PoloniexClient.hpp"
@@ -19,6 +20,7 @@ int main(int argc, char **argv)
     QApplication a(argc, argv);
     PoloniexClient client;
 
+	//qDebug() << QSslSocket::sslLibraryBuildVersionString();
 
     //Parse json test.
     std::string pair = "BTC_XMR";

@@ -4,17 +4,21 @@ set(CMAKE_CXX_STANDARD 11)
 
 
 #----------------Prepare and Load Dependencies--------------------------------
-
 #My PoloniexAPIWrapper
-#find_library(poloniex_api_lib PoloniexAPI)
 set(poloniex_api_include_dir ${CMAKE_CURRENT_SOURCE_DIR}/PoloniexAPI)
 add_subdirectory(PoloniexAPI)
 
-#Add the QT Cmake path to the current cmake path.
-#If it cannot find QT, make sure it is installed and then set the QtCmakePath
+#Check if QtCmakePath environment variable is set before proceeding.
+if(EXISTS "$ENV{QtCmakePath}")
+    #Change the windows path separators to cmake ones
+    file(TO_CMAKE_PATH "$ENV{QtCmakePath}" QtCmakePath)
+else()
+    message(FATAL_ERROR "Could not find QtCmakePath environment variable")
+endif(EXISTS "$ENV{QtCmakePath}")
 
-#Add the <Qt5Dir>/lib/cmake/Qt5 Enivronment Variable to the prefix path 
-SET(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "~/Qt5.8.0/5.8/gcc_64/lib/cmake/Qt5")
+
+#set(Qt5Charts_DIR "X:/Libraries/QtSDK-x86_64/5.8/msvc2015_64/lib/cmake/Qt5Charts")
+#set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${QtCmakePath})
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
