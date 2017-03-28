@@ -1,9 +1,6 @@
 #include <hpp/MarketMonitor.h>
 
 
-
-
-
 MarketMonitor::MarketMonitor()
 {
 }

@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.6)
 project(TradingSystem)
 set(CMAKE_CXX_STANDARD 11)
 
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed. [For Qt]
@@ -41,7 +43,7 @@ include_directories (${PROJECT_SOURCE_DIR})
 include_directories (${PROJECT_BINARY_DIR})
 include_directories (${poloniex_api_include_dir})
 
-add_library (MyProjectLib SHARED
+add_library (MyProjectLib STATIC
         ${SOURCE_FILES}
         ${MyProjectLib_hdr_moc}
         )
@@ -70,7 +72,7 @@ target_link_libraries(TradingSystem
         PoloniexAPI)
 
 #Specify dependencies to ensure they are built first.
-add_dependencies(TradingSystem PoloniexAPI)
+add_dependencies(TradingSystem PoloniexAPI MyProjectLib)
 
 
 
