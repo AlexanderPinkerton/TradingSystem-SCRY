@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PoloniexAPI\PoloniexClient.hpp"
+#include "PoloniexClient.hpp"
 
 #include <QPushButton>
 
@@ -15,7 +15,7 @@
 #include <iostream>
 #include <ctime>
 
-class MarketMonitor
+class MarketMonitor : QObject
 {
 	Q_OBJECT
 public:

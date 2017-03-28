@@ -1,4 +1,6 @@
-#include "..\hpp\MarketMonitor.h"
+#include <hpp/MarketMonitor.h>
+
+
 
 
 
@@ -106,7 +108,7 @@ void MarketMonitor::initialize()
 	QPushButton * button = new QPushButton();
 	button->resize(100, 50);
 	button->setText("UpdateChart");
-	QObject::connect(button, SIGNAL(clicked()), window, SLOT(button_update()));
+	QObject::connect(button, SIGNAL(clicked()), this, SLOT(button_update()));
 
 
 	box->addWidget(button);
