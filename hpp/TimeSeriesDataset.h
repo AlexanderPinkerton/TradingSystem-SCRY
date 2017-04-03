@@ -2,14 +2,13 @@
 
 #include <unordered_map>
 #include <string>
-#include <stdexcept>      // std::out_of_range
-
-#include <iostream>
+#include <stdexcept>  
 
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QDebug>
+#include <QFile>
 
 #include "TimeSeriesDataColumn.h"
 
@@ -41,6 +40,8 @@ public:
 	//Static
 	static TimeSeriesDataset createFromJSON(std::string & jsonString);
 	static TimeSeriesDataset createFromCSV();
+
+	static std::string file2String(std::string & filename);
 
 private:
 

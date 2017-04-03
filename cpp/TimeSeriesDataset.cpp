@@ -59,15 +59,14 @@ TimeSeriesDataset TimeSeriesDataset::createFromJSON(std::string & jsonString)
 	//Create Json document from string
 	QJsonDocument doc = QJsonDocument::fromJson(qresult.toUtf8());
 
-	//TODO: Need to examine document and create all columns at this point look at the json to know if they are numeric or text and store in map
 	
 	//Since all data is contained as an array
 	QJsonArray datapoints = doc.array();
 
-	QJsonObject first = datapoints.at(0).toObject();
-
 	//Use the first object to set the fieldnames
+	QJsonObject first = datapoints.at(0).toObject();
 	result.fieldNames = first.keys();
+
 	//Set the number of elements in the dataset
 	result.numElements = datapoints.size();
 
@@ -90,7 +89,7 @@ TimeSeriesDataset TimeSeriesDataset::createFromJSON(std::string & jsonString)
 		}
 	}
 	
-	//Insert the data into the columnss
+	//Insert the data into the columns
 	for (int i = 0; i < datapoints.size(); i++) {
 		QJsonObject datapoint = datapoints[i].toObject();
 
@@ -113,7 +112,17 @@ TimeSeriesDataset TimeSeriesDataset::createFromJSON(std::string & jsonString)
 	result.numeric_columns = numeric_columns;
 	result.string_columns = string_columns;
 	
-	//TimeSeriesDataset result(numeric_columns, string_columns);
-
 	return result;
+}
+
+std::string TimeSeriesDataset::file2String(std::string & filename)
+{
+	QString val;
+	QFile file;
+	file.setFileName("chartdata.json");
+	file.open(QIODevice::ReadOnly | QIODevice::Text);
+	val = file.readAll();
+	file.close();
+
+	return val.toStdString();
 }

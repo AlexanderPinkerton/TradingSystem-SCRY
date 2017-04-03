@@ -35,6 +35,7 @@ void MarketMonitor::initialize()
 
 	//Grab the chartData from poloniexAPI and construct dataset.
 	TimeSeriesDataset set = TimeSeriesDataset::createFromJSON(client.public_ChartData(pair, seconds, start, end));
+	//TimeSeriesDataset set = TimeSeriesDataset::createFromJSON(TimeSeriesDataset::file2String(std::string("chartdata.json")));
 
 	//For each datapoint in the dataset, add it to the candlestick series.
 	for (int i = 0; i < set.numElements; i++) {
@@ -54,7 +55,7 @@ void MarketMonitor::initialize()
 	chart->setTheme(QChart::ChartThemeDark);
 	chart->addSeries(acmeSeries);
 	chart->setTitle(QString::fromStdString(pair));
-	chart->setAnimationOptions(QChart::SeriesAnimations);
+	//chart->setAnimationOptions(QChart::SeriesAnimations);
 	chart->createDefaultAxes();
 	chart->legend()->setVisible(true);
 	chart->legend()->setAlignment(Qt::AlignBottom);
