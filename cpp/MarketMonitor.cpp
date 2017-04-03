@@ -26,56 +26,38 @@ void MarketMonitor::initialize()
 
 
 
-
+	//Create candlestick series for graph and set its colors.
 	QCandlestickSeries *acmeSeries = new QCandlestickSeries();
 	acmeSeries->setName("Acme Ltd");
 	acmeSeries->setIncreasingColor(QColor(125, 249, 255));
 	acmeSeries->setDecreasingColor(QColor(Qt::darkMagenta));
-
-
-
 	QStringList categories;
 
+	//Grab the chartData from poloniexAPI and construct dataset.
+	TimeSeriesDataset set = TimeSeriesDataset::createFromJSON(client.public_ChartData(pair, seconds, start, end));
 
+	//For each datapoint in the dataset, add it to the candlestick series.
+	for (int i = 0; i < set.numElements; i++) {
+		QCandlestickSet *candlestickSet = new QCandlestickSet(set.get_numeric_column(std::string("date"))[i]);
+		candlestickSet->setOpen(set.get_numeric_column(std::string("open"))[i]);
+		candlestickSet->setHigh(set.get_numeric_column(std::string("high"))[i]);
+		candlestickSet->setLow(set.get_numeric_column(std::string("low"))[i]);
+		candlestickSet->setClose(set.get_numeric_column(std::string("close"))[i]);
 
-	std::string result = client.public_ChartData(pair, seconds, start, end);
-
-	if (result != "FAIL") {
-		QString qresult = QString::fromStdString(result);
-		QJsonDocument doc = QJsonDocument::fromJson(qresult.toUtf8());
-		QJsonArray candles = doc.array();
-
-		for (int i = 0; i<candles.size(); i++) {
-			QJsonObject dateobj = candles[i].toObject();
-
-			const qreal timestamp = dateobj["date"].toDouble();
-			const qreal open = dateobj["open"].toDouble();
-			const qreal high = dateobj["high"].toDouble();
-			const qreal low = dateobj["low"].toDouble();
-			const qreal close = dateobj["close"].toDouble();
-
-			QCandlestickSet *candlestickSet = new QCandlestickSet(timestamp);
-			candlestickSet->setOpen(open);
-			candlestickSet->setHigh(high);
-			candlestickSet->setLow(low);
-			candlestickSet->setClose(close);
-
-
-			acmeSeries->append(candlestickSet);
-			categories << QDateTime::fromMSecsSinceEpoch(candlestickSet->timestamp()).toString("hh:mm:ss");
-		}
-
+		acmeSeries->append(candlestickSet);
+		categories << QDateTime::fromMSecsSinceEpoch(candlestickSet->timestamp()).toString();
 	}
+
 
 
 	QChart *chart = new QChart();
 	chart->setTheme(QChart::ChartThemeDark);
 	chart->addSeries(acmeSeries);
-
 	chart->setTitle(QString::fromStdString(pair));
 	chart->setAnimationOptions(QChart::SeriesAnimations);
-
 	chart->createDefaultAxes();
+	chart->legend()->setVisible(true);
+	chart->legend()->setAlignment(Qt::AlignBottom);
 
 	QBarCategoryAxis *axisX = qobject_cast<QBarCategoryAxis *>(chart->axes(Qt::Horizontal).at(0));
 	axisX->setCategories(categories);
@@ -84,18 +66,10 @@ void MarketMonitor::initialize()
 	axisY->setMax(axisY->max() * 1.01);
 	axisY->setMin(axisY->min() * 0.99);
 
-	chart->legend()->setVisible(true);
-	chart->legend()->setAlignment(Qt::AlignBottom);
-
 	QChartView *chartView = new QChartView(chart);
 	chartView->setRenderHint(QPainter::Antialiasing);
 	chartView->setRubberBand(QChartView::HorizontalRubberBand);
 
-
-	
-
-	// Connect button signal to appropriate slot
-	//connect(button, SIGNAL(released()), this, SLOT(button_update()));
 
 
 	QWidget *window = new QWidget;
@@ -107,10 +81,11 @@ void MarketMonitor::initialize()
 	button->setText("UpdateChart");
 	QObject::connect(button, SIGNAL(clicked()), this, SLOT(button_update()));
 
-
+	//add widgets to layout.
 	box->addWidget(button);
 	box->addWidget(chartView);
 	window->resize(800, 600);
+	//set windows layout.
 	window->setLayout(box);
 	window->show();
 

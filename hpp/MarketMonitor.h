@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PoloniexClient.hpp"
+#include "TimeSeriesDataset.h"
 
 #include <QPushButton>
 
