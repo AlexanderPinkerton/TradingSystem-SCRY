@@ -28,10 +28,12 @@ void MarketMonitor::initialize()
 
 	//Create candlestick series for graph and set its colors.
 	QCandlestickSeries *acmeSeries = new QCandlestickSeries();
-	acmeSeries->setName("Acme Ltd");
+	acmeSeries->setName(QString::fromStdString(pair));
 	acmeSeries->setIncreasingColor(QColor(125, 249, 255));
 	acmeSeries->setDecreasingColor(QColor(Qt::darkMagenta));
 	QStringList categories;
+
+
 
 	//Grab the chartData from poloniexAPI and construct dataset.
 	TimeSeriesDataset set = TimeSeriesDataset::createFromJSON(client.public_ChartData(pair, seconds, start, end));
@@ -46,19 +48,46 @@ void MarketMonitor::initialize()
 		candlestickSet->setClose(set.get_numeric_column(std::string("close"))[i]);
 
 		acmeSeries->append(candlestickSet);
-		categories << QDateTime::fromMSecsSinceEpoch(candlestickSet->timestamp()).toString();
+		categories << QDateTime::fromSecsSinceEpoch(candlestickSet->timestamp()).toString();
 	}
 
+
+	//Create test indicator
+	QLineSeries* indicator = new QLineSeries();
+	for (int i = 0; i < set.numElements; i++) {
+		indicator->append(set.get_numeric_column(std::string("date"))[i], set.get_numeric_column(std::string("close"))[i]);
+	}
+	indicator->setColor(Qt::blue);
+	QLineSeries* indicator2 = new QLineSeries();
+	for (int i = 0; i < set.numElements; i++) {
+		indicator2->append(set.get_numeric_column(std::string("date"))[i], 
+			(set.get_numeric_column(std::string("open"))[i] + set.get_numeric_column(std::string("close"))[i]) / 2
+		);
+	}
+	indicator2->setColor(Qt::yellow);
+	QLineSeries* indicator3 = new QLineSeries();
+	for (int i = 0; i < set.numElements; i++) {
+		indicator3->append(set.get_numeric_column(std::string("date"))[i], set.get_numeric_column(std::string("open"))[i]);
+	}
+	indicator3->setColor(Qt::green);
 
 
 	QChart *chart = new QChart();
 	chart->setTheme(QChart::ChartThemeDark);
+
 	chart->addSeries(acmeSeries);
+	//Test Indicators
+	chart->addSeries(indicator);
+	chart->addSeries(indicator2);
+	chart->addSeries(indicator3);
+
 	chart->setTitle(QString::fromStdString(pair));
 	//chart->setAnimationOptions(QChart::SeriesAnimations);
 	chart->createDefaultAxes();
 	chart->legend()->setVisible(true);
 	chart->legend()->setAlignment(Qt::AlignBottom);
+
+	
 
 	QBarCategoryAxis *axisX = qobject_cast<QBarCategoryAxis *>(chart->axes(Qt::Horizontal).at(0));
 	axisX->setCategories(categories);
@@ -70,7 +99,8 @@ void MarketMonitor::initialize()
 	QChartView *chartView = new QChartView(chart);
 	chartView->setRenderHint(QPainter::Antialiasing);
 	chartView->setRubberBand(QChartView::HorizontalRubberBand);
-
+	//chartView->setDragMode(QGraphicsView::DragMode::ScrollHandDrag);
+	
 
 
 	QWidget *window = new QWidget;

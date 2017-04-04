@@ -23,6 +23,8 @@ public:
 	MarketMonitor();
 	~MarketMonitor();
 
+	int lastUpdate = std::time(0);
+
 	void initialize();
 	
 
