@@ -2,6 +2,7 @@
 
 #include "PoloniexClient.hpp"
 #include "TimeSeriesDataset.h"
+#include "LineIndicator.h"
 
 #include <QPushButton>
 
