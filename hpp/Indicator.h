@@ -17,6 +17,8 @@ public:
 	{
 	}
 
+	QAbstractSeries* indicator;
+
 	virtual void setName(std::string s) = 0;
 
 	virtual void setDataSource(TimeSeriesDataset & source) = 0;

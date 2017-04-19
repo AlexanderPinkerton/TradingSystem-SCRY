@@ -3,6 +3,7 @@
 #include "PoloniexClient.hpp"
 #include "TimeSeriesDataset.h"
 #include "LineIndicator.h"
+#include "MovingAverageIndicator.h"
 
 #include <QPushButton>
 
@@ -31,5 +32,8 @@ public:
 
 public slots:
 	void button_update();
+
+private:
+	QChart * chart;
 };
 

@@ -1,5 +1,6 @@
 #include <hpp/MarketMonitor.h>
 
+#include <limits>
 
 MarketMonitor::MarketMonitor()
 {
@@ -23,8 +24,9 @@ void MarketMonitor::initialize()
 	int seconds = 900;
 	//300, 900, 1800, 7200, 14400, and 86400
 	//5min  15  30  2hr 4hr 1day
-
-
+	
+	double max = std::numeric_limits<double>::min();
+	double min = std::numeric_limits<double>::max();
 
 	////Create candlestick series for graph and set its colors.
 	QCandlestickSeries *acmeSeries = new QCandlestickSeries();
@@ -51,79 +53,43 @@ void MarketMonitor::initialize()
 		categories << QDateTime::fromSecsSinceEpoch(candlestickSet->timestamp()).toString();
 	}
 
-
-	//Create some test indicators.
-	QLineSeries* indicator = new QLineSeries();
-	indicator->setName("ClosePrice");
-	for (int i = 0; i < set.numElements; i++) {
-		indicator->append(i, set.get_numeric_column(std::string("close"))[i]);
-	}
-	indicator->setColor(Qt::red);
-	QLineSeries* indicator2 = new QLineSeries();
-	indicator->setName("Mid");
-	for (int i = 0; i < set.numElements; i++) {
-		indicator2->append(i,
-			(set.get_numeric_column(std::string("open"))[i] + set.get_numeric_column(std::string("close"))[i]) / 2
-		);
-	}
-	indicator2->setColor(Qt::yellow);
-	QLineSeries* indicator3 = new QLineSeries();
-	indicator->setName("OpenPrice");
-	for (int i = 0; i < set.numElements; i++) {
-		indicator3->append(i, set.get_numeric_column(std::string("open"))[i]);
-	}
-	indicator3->setColor(Qt::green);
-
-
-
-	QChart *chart = new QChart();
+	//Create the chart to house the data
+	chart = new QChart();
 	chart->setTheme(QChart::ChartThemeDark);
-
-	
-
-	chart->addSeries(acmeSeries);
-	//Add Indicators
-
-	LineIndicator * indicator1 = new LineIndicator();
-	indicator1->setDataSource(set);
-	indicator1->initialize();
-	indicator1->getSeries()->setColor(Qt::blue);
-	indicator1->attach(chart);
-
-	//chart->addSeries(indicator);
-	chart->addSeries(indicator2);
-	chart->addSeries(indicator3);
-
 	chart->setTitle(QString::fromStdString(pair));
 	//chart->setAnimationOptions(QChart::SeriesAnimations);
-
-
-	//chart->createDefaultAxes();
-
+	
+	//Create the vertical axis based on the prices
+	QValueAxis *priceAxis = new QValueAxis();
 	//Create the categories for the candlesticks.
 	QBarCategoryAxis *timestampAxis = new QBarCategoryAxis();
 	timestampAxis->setCategories(categories);
 
-	//Set the X-Axis for all of the series.
-	//chart->setAxisX(timestampAxis, indicator);
-	chart->setAxisX(timestampAxis, indicator2);
-	chart->setAxisX(timestampAxis, indicator3);
-	chart->setAxisX(timestampAxis, acmeSeries);
-	chart->setAxisX(timestampAxis, indicator1->indicator);
 
-	//Create the vertical axis based on the prices
-	QValueAxis *priceAxis = new QValueAxis();
+
+	//Add the candlestick series and set its axes
+	chart->addSeries(acmeSeries);
+	chart->setAxisX(timestampAxis, acmeSeries);
+	chart->setAxisY(priceAxis, acmeSeries);
+
+
+	//Add Indicators
+	std::vector<LineIndicator*> indicators;
+	indicators.push_back(new MovingAverageIndicator(set, 5, Qt::red));
+	indicators.push_back(new MovingAverageIndicator(set, 10, Qt::blue));
+	//Initialize and attach all indicators and set their axes
+	for (auto it = indicators.begin(); it != indicators.end(); it++) {
+		(*it)->initialize();
+		(*it)->attach(chart);
+		chart->setAxisX(timestampAxis, (*it)->indicator);
+		chart->setAxisY(priceAxis, (*it)->indicator);
+	}
+
+	
+
+	//Add some space above and below the candle edges
 	priceAxis->setMax(priceAxis->max() * 1.01);
 	priceAxis->setMin(priceAxis->min() * 0.99);
-
-	//Set the Y-Axis for all of the series.
-	//chart->setAxisY(priceAxis, indicator);
-	chart->setAxisY(priceAxis, indicator2);
-	chart->setAxisY(priceAxis, indicator3);
-	chart->setAxisY(priceAxis, acmeSeries);
-	chart->setAxisY(priceAxis, indicator1->indicator);
-
-
 
 	chart->legend()->setVisible(true);
 	chart->legend()->setAlignment(Qt::AlignBottom);
@@ -134,11 +100,7 @@ void MarketMonitor::initialize()
 	chartView->setRubberBand(QChartView::HorizontalRubberBand);
 	//chartView->setDragMode(QGraphicsView::DragMode::ScrollHandDrag);
 
-
 	
-
-	
-
 
 	QWidget *window = new QWidget;
 	QVBoxLayout *box = new QVBoxLayout;
@@ -146,7 +108,7 @@ void MarketMonitor::initialize()
 
 	QPushButton * button = new QPushButton();
 	button->resize(100, 50);
-	button->setText("UpdateChart");
+	button->setText("Reset Zoom");
 	QObject::connect(button, SIGNAL(clicked()), this, SLOT(button_update()));
 
 	//add widgets to layout.
@@ -165,5 +127,6 @@ void MarketMonitor::initialize()
 void MarketMonitor::button_update() {
 
 	qDebug() << "button clicked";
-
+	
+	chart->zoomReset();
 }
