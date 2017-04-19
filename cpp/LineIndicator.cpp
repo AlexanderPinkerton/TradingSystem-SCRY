@@ -30,7 +30,7 @@ void LineIndicator::initialize()
 
 	//Add each datapoint into the indicator
 	for (int i = 0; i < dataSource->numElements; i++) {
-		indicator->append(dataSource->get_numeric_column(std::string("date"))[i], dataSource->get_numeric_column(std::string("close"))[i]);
+		indicator->append(i, dataSource->get_numeric_column(std::string("close"))[i]);
 	}
 
 }
