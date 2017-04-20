@@ -37,6 +37,14 @@ void MarketMonitor::initialize()
 	TimeSeriesDataset set = TimeSeriesDataset::createFromJSON(client.public_ChartData(pair, seconds, start, end));
 	//TimeSeriesDataset set = TimeSeriesDataset::createFromJSON(TimeSeriesDataset::file2String(std::string("chartdata.json")));
 
+	//Add Indicators
+	std::vector<LineIndicator*> indicators;
+	indicators.push_back(new ExpMovingAverageIndicator(10, Qt::green));
+	indicators.push_back(new MovingAverageIndicator(5, Qt::red));
+	indicators.push_back(new MovingAverageIndicator(10, Qt::blue));
+	indicators.push_back(new MovingAverageIndicator(15, Qt::yellow));
+	
+
 	//For each datapoint in the dataset, add it to the candlestick series.
 	for (int i = 0; i < set.numElements; i++) {
 		QCandlestickSet *candlestickSet = new QCandlestickSet(set.get_numeric_column(std::string("date"))[i]);
@@ -44,9 +52,15 @@ void MarketMonitor::initialize()
 		candlestickSet->setHigh(set.get_numeric_column(std::string("high"))[i]);
 		candlestickSet->setLow(set.get_numeric_column(std::string("low"))[i]);
 		candlestickSet->setClose(set.get_numeric_column(std::string("close"))[i]);
-
+		
 		acmeSeries->append(candlestickSet);
 		categories << QDateTime::fromSecsSinceEpoch(candlestickSet->timestamp()).toString();
+
+		//Add each datapoint to each indicator
+		for (auto it = indicators.begin(); it != indicators.end(); it++) {
+			(*it)->update(1337,set.get_numeric_column(std::string("close"))[i]);
+		}
+
 	}
 
 	//Create the chart to house the data
@@ -69,11 +83,6 @@ void MarketMonitor::initialize()
 	chart->setAxisY(priceAxis, acmeSeries);
 
 
-	//Add Indicators
-	std::vector<LineIndicator*> indicators;
-	indicators.push_back(new MovingAverageIndicator(set, 5, Qt::yellow));
-	indicators.push_back(new MovingAverageIndicator(set, 20, Qt::green));
-	indicators.push_back(new ExpMovingAverageIndicator(set, 10, Qt::red));
 	//Initialize and attach all indicators and set their axes
 	for (auto it = indicators.begin(); it != indicators.end(); it++) {
 		(*it)->initialize();

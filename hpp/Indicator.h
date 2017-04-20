@@ -27,7 +27,7 @@ public:
 
 	virtual void attach(QChart * chart) = 0;
 
-	virtual void update() = 0;
+	virtual void update(int timestamp, double value) = 0;
 
 
 };

@@ -36,6 +36,9 @@ void LineIndicator::initialize()
 	//TODO: Pass in a lambda which will calculate indicator
 
 	//Add each datapoint into the indicator
+
+	qDebug() << "LineIndicator init";
+
 	for (int i = 0; i < dataSource->numElements; i++) {
 
 		int period = 10;
@@ -60,7 +63,7 @@ void LineIndicator::attach(QChart * chart)
 	chart->addSeries(indicator);
 }
 
-void LineIndicator::update()
+void LineIndicator::update(int timestamp, double value)
 {
 }
 

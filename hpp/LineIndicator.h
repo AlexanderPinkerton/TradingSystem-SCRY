@@ -18,7 +18,7 @@ public:
 	void setDataSource(TimeSeriesDataset & source) override;
 	virtual void initialize() override;
 	void attach(QChart * chart) override;
-	void update() override;
+	void update(int timestamp, double value) override;
 
 	QLineSeries * getSeries();
 };
