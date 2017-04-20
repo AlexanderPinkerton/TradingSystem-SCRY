@@ -23,7 +23,7 @@ MovingAverageIndicator::MovingAverageIndicator(TimeSeriesDataset & source, int p
 
 void MovingAverageIndicator::initialize()
 {
-	indicator->setName(QString::number(period) + "-Day Moving Average");
+	indicator->setName(QString::number(period) + "-Period Moving Average");
 	double sum = 0;
 	//Add each datapoint into the indicator
 	for (int i = 0; i < dataSource->numElements; i++) {
