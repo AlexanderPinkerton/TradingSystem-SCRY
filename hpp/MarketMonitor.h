@@ -4,6 +4,7 @@
 #include "TimeSeriesDataset.h"
 #include "LineIndicator.h"
 #include "MovingAverageIndicator.h"
+#include "ExpMovingAverageIndicator.h"
 
 #include <QPushButton>
 

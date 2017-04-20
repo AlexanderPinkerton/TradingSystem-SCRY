@@ -1,7 +1,5 @@
 #include <hpp/MarketMonitor.h>
 
-#include <limits>
-
 MarketMonitor::MarketMonitor()
 {
 }
@@ -19,14 +17,12 @@ void MarketMonitor::initialize()
 
 	//Parse json test.
 	std::string pair = "BTC_XMR";
-	int start = std::time(0) - 50000;
+	int start = std::time(0) - 100000;
 	int end = std::time(0);
 	int seconds = 900;
 	//300, 900, 1800, 7200, 14400, and 86400
 	//5min  15  30  2hr 4hr 1day
-	
-	double max = std::numeric_limits<double>::min();
-	double min = std::numeric_limits<double>::max();
+
 
 	////Create candlestick series for graph and set its colors.
 	QCandlestickSeries *acmeSeries = new QCandlestickSeries();
@@ -75,8 +71,9 @@ void MarketMonitor::initialize()
 
 	//Add Indicators
 	std::vector<LineIndicator*> indicators;
-	indicators.push_back(new MovingAverageIndicator(set, 5, Qt::red));
-	indicators.push_back(new MovingAverageIndicator(set, 10, Qt::blue));
+	indicators.push_back(new MovingAverageIndicator(set, 5, Qt::yellow));
+	indicators.push_back(new MovingAverageIndicator(set, 20, Qt::green));
+	indicators.push_back(new ExpMovingAverageIndicator(set, 10, Qt::red));
 	//Initialize and attach all indicators and set their axes
 	for (auto it = indicators.begin(); it != indicators.end(); it++) {
 		(*it)->initialize();

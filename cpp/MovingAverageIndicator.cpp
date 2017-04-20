@@ -24,16 +24,19 @@ MovingAverageIndicator::MovingAverageIndicator(TimeSeriesDataset & source, int p
 void MovingAverageIndicator::initialize()
 {
 	indicator->setName(QString::number(period) + "-Day Moving Average");
-
+	double sum = 0;
 	//Add each datapoint into the indicator
 	for (int i = 0; i < dataSource->numElements; i++) {
-		if (i > period) {
-			double movAvg10c = 0;
-			for (int j = i - period; j < i; j++) {
-				movAvg10c = movAvg10c + dataSource->get_numeric_column(std::string("close"))[j];
-			}
-			movAvg10c = movAvg10c / period;
-			indicator->append(i, movAvg10c);
+		if (i < period) {
+			sum = sum + dataSource->get_numeric_column(std::string("close"))[i];
+			indicator->append(i, sum/(i+1));
 		}
+		else {
+			sum = sum + dataSource->get_numeric_column(std::string("close"))[i];
+			sum = sum - indicator->at(i - period).y();
+			indicator->append(i, sum / period);
+		}
+
 	}
 }
+
