@@ -32,17 +32,22 @@ void MarketMonitor::initialize()
 	QStringList categories;
 
 
-
+	qDebug() << "Loading Data.";
 	//Grab the chartData from poloniexAPI and construct dataset.
 	TimeSeriesDataset set = TimeSeriesDataset::createFromJSON(client.public_ChartData(pair, seconds, start, end));
+	//TODO: If request fails --> 
+	lastUpdate = end;
+
 	//TimeSeriesDataset set = TimeSeriesDataset::createFromJSON(TimeSeriesDataset::file2String(std::string("chartdata.json")));
+	
+	qDebug() << "Creating chart";
 
 	//Add Indicators
 	std::vector<LineIndicator*> indicators;
-	indicators.push_back(new ExpMovingAverageIndicator(10, Qt::green));
-	indicators.push_back(new MovingAverageIndicator(5, Qt::red));
-	indicators.push_back(new MovingAverageIndicator(10, Qt::blue));
-	indicators.push_back(new MovingAverageIndicator(15, Qt::yellow));
+	//indicators.push_back(new ExpMovingAverageIndicator(10, Qt::green));
+	//indicators.push_back(new MovingAverageIndicator(5, Qt::red));
+	indicators.push_back(new MovingAverageIndicator(3, Qt::blue));
+	indicators.push_back(new MovingAverageIndicator(10, Qt::yellow));
 	
 
 	//For each datapoint in the dataset, add it to the candlestick series.
@@ -115,10 +120,16 @@ void MarketMonitor::initialize()
 	QPushButton * button = new QPushButton();
 	button->resize(100, 50);
 	button->setText("Reset Zoom");
-	QObject::connect(button, SIGNAL(clicked()), this, SLOT(button_update()));
+	QObject::connect(button, SIGNAL(clicked()), this, SLOT(button_reset()));
+
+	QPushButton * b_update = new QPushButton();
+	b_update->resize(100, 50);
+	b_update->setText("Update");
+	QObject::connect(b_update, SIGNAL(clicked()), this, SLOT(button_update()));
 
 	//add widgets to layout.
 	box->addWidget(button);
+	box->addWidget(b_update);
 	box->addWidget(chartView);
 	window->resize(800, 600);
 	//set windows layout.
@@ -130,9 +141,23 @@ void MarketMonitor::initialize()
 }
 
 
+void MarketMonitor::checkForUpdate()
+{
+
+}
+
+
 void MarketMonitor::button_update() {
 
-	qDebug() << "button clicked";
+	qDebug() << "Initilizing update.";
 	
+
+}
+
+void MarketMonitor::button_reset() {
+
+	qDebug() << "Reseting Market Monitor";
+
 	chart->zoomReset();
+
 }

@@ -29,10 +29,11 @@ public:
 	int lastUpdate = std::time(0);
 
 	void initialize();
-	
+	void checkForUpdate();
 
 public slots:
 	void button_update();
+	void button_reset();
 
 private:
 	QChart * chart;

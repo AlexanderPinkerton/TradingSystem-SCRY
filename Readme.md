@@ -4,8 +4,10 @@ The main idea of this trading system is to create a cross-platform trading platf
 
 # Debian Installation
 ```sh
-$ cd HyperCSV
-$ cmake .
+$ cd TradingSystem-SCRY
+$ mkidr build
+$ cd build
+$ cmake ..
 $ make
 ```
 
